@@ -7,7 +7,7 @@ This repository contains our prototype for Tracey's NFC and QR-code based tracin
 Whenever two persons meet, they create an encounter-based secret.
 In case of an infection, the infected party notifies all encounters using the individual secrets.
 While a public database distributes those notifications, only the original parties receive them.
-In addition to personal contacts, groups can also share a secret and 
+In addition to personal contacts, groups can also share a secret.
 The secrets can either be generated on demand or in advance.
 
 ## Todos
