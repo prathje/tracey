@@ -1,14 +1,15 @@
 package de.patrickrathje.tracey.ui.groups;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ListFragment;
+
+import androidx.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import androidx.fragment.app.ListFragment;
 import androidx.navigation.Navigation;
 
 import java.text.SimpleDateFormat;
@@ -19,8 +20,6 @@ import de.patrickrathje.tracey.Storage;
 import de.patrickrathje.tracey.model.Group;
 
 public class GroupsFragment extends ListFragment {
-
-    private GroupsViewModel GroupsViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {

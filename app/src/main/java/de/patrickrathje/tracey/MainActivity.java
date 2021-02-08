@@ -6,17 +6,15 @@ import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,7 +22,6 @@ import java.util.Date;
 import java.util.Random;
 
 import de.patrickrathje.tracey.model.Group;
-import de.patrickrathje.tracey.ui.group_details.GroupDetailsFragment;
 import de.patrickrathje.tracey.utils.HexConverter;
 
 public class MainActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback {
