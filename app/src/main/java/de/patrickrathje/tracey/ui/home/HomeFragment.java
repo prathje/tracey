@@ -9,6 +9,8 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+
 import de.patrickrathje.tracey.R;
 
 public class HomeFragment extends Fragment {

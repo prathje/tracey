@@ -52,7 +52,7 @@ public class InvitationParser {
         return null;
     }
 
-    public String toHexInvitationString(Group group) {
+    public static String toHexInvitationString(Group group) {
         short version = 1;
 
         String text = group.getText();

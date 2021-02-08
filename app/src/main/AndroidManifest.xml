@@ -8,6 +8,7 @@
     <uses-feature android:name="android.hardware.nfc.hce" android:required="true" />
     <uses-feature android:name="android.hardware.nfc" android:required="true" />
 
+
     <uses-sdk tools:overrideLibrary="com.google.zxing.client.android" />
 
     <application
@@ -16,7 +17,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Tracey">
+        android:theme="@style/Theme.Tracey"
+        android:hardwareAccelerated="true"
+        >
         
         <service android:name=".ApduService" android:exported="true"
             android:permission="android.permission.BIND_NFC_SERVICE">
@@ -39,14 +42,19 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
 
-
-                <action android:name="show_group"/>
+                <data android:scheme="android-app" android:host="de.patrickrathje.tracey" android:path="/"/>
+            </intent-filter>
+            <intent-filter>
                 <action android:name="join_group"/>
-
-                <data android:scheme="tracey" android:host="de.patrickrathje.tracey" android:path="/"/>
-
+                <data android:scheme="tracey" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:screenOrientation="fullSensor"
+            tools:replace="screenOrientation" />
+
     </application>
 
 

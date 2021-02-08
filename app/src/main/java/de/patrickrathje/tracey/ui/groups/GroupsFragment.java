@@ -13,7 +13,11 @@ import androidx.fragment.app.ListFragment;
 import androidx.navigation.Navigation;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import de.patrickrathje.tracey.R;
 import de.patrickrathje.tracey.Storage;
@@ -32,31 +36,31 @@ public class GroupsFragment extends ListFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-
         List<Group> groups = Storage.getStorage().getGroups();
-
-        int size = groups.size();
-        String[] values = new String[size];
-
-        for(int i = 0; i < size; i++) {
-            Group g = groups.get(i);
-
-            SimpleDateFormat sdf;
-            sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
-            values[i] = sdf.format(g.getDateAdded());
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_list_item_1, values);
+        Collections.reverse(groups);
+        ArrayAdapter<Group> adapter = new ArrayAdapter<Group>(getActivity(), android.R.layout.simple_list_item_1, groups);
         setListAdapter(adapter);
+
+
+        Storage.getStorage().addObserver(new Observer() {
+            @Override
+            public void update(Observable observable, Object o) {
+                List<Group> groups = Storage.getStorage().getGroups();
+                Collections.reverse(groups);
+                adapter.clear();
+                adapter.addAll(groups);
+                adapter.notifyDataSetChanged();
+                //List<Group> groups = Storage.getStorage().getGroups();
+                //adapter.clear();
+                //adapter.addAll(groups);
+            }
+        });
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-
         Bundle bundle = new Bundle();
-        bundle.putInt("group_id", (int)id);
+        bundle.putInt("group_id", ((Group)getListAdapter().getItem((int)id)).getId());
         Navigation.findNavController(getActivity(), R.id.nav_host_fragment).navigate(R.id.showGroupDetails, bundle);
 
         /*

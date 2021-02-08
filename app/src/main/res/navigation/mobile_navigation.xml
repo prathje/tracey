@@ -13,6 +13,14 @@
             android:defaultValue="0" />
     </action>
 
+    <action android:id="@+id/joinGroup"
+        app:destination="@+id/group_join">
+        <argument
+            android:name="hex_data"
+            app:argType="string"
+            android:defaultValue="" />
+    </action>
+
     <fragment
         android:id="@+id/navigation_home"
         android:name="de.patrickrathje.tracey.ui.home.HomeFragment"
@@ -40,6 +48,16 @@
             android:name="group_id"
             app:argType="integer"
             android:defaultValue="0" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/group_join"
+        android:name="de.patrickrathje.tracey.ui.group_join.GroupJoinFragment"
+        tools:layout="@layout/fragment_group_join">
+        <argument
+            android:name="hex_data"
+            app:argType="string"
+            android:defaultValue="" />
     </fragment>
 
 </navigation>

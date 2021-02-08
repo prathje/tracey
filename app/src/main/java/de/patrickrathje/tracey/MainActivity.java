@@ -1,12 +1,15 @@
 package de.patrickrathje.tracey;
 
 import android.content.Intent;
+import android.icu.lang.UCharacter;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -15,6 +18,8 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -22,6 +27,7 @@ import java.util.Date;
 import java.util.Random;
 
 import de.patrickrathje.tracey.model.Group;
+import de.patrickrathje.tracey.ui.group_join.GroupJoinFragment;
 import de.patrickrathje.tracey.utils.HexConverter;
 
 public class MainActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback {
@@ -49,6 +55,10 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
     final Random random = new Random();
     final Handler handler = new Handler();
+
+
+
+    private String scannedHexData = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,28 +99,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         return Navigation.findNavController(this, R.id.nav_host_fragment).navigateUp() || super.onSupportNavigateUp();
     }
 
-    private void parseIntent(Intent intent) {
-        final String action = intent.getAction();
 
 
-        if (action != null) {
-            System.out.println("action:" + action);
-            if (action.equals("show_group")) {
-
-                Bundle bundle = new Bundle();
-                bundle.putInt("group_id", 0);
-                Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.showGroupDetails, bundle);
-            }
-        }
-    }
-
-
-
-    @Override
-    protected void onNewIntent(final Intent intent) {
-        super.onNewIntent(intent);
-        parseIntent(intent);
-    }
 
     @Override
     public void onTagDiscovered(Tag tag) {
@@ -175,6 +165,16 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (scannedHexData != null) {
+            // we scaned something!
+            Bundle bundle = new Bundle();
+            System.out.println(scannedHexData);
+            bundle.putString(GroupJoinFragment.ARG_HEX_DATA, scannedHexData);
+            scannedHexData = null;
+            Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.joinGroup, bundle);
+        }
+
         this.updateReaderMode(STATE_SEARCHING_FOR_HCE);
     }
 
@@ -245,6 +245,52 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
     protected synchronized void fromSearchingToPresenting() {
         if (state == STATE_SEARCHING_FOR_HCE) {
             this.updateReaderMode(STATE_PRESENTING_HCE_IN_FOREGROUND);
+        }
+    }
+
+
+    public void createGroup(View view) {
+        Group group = new Group(new Date(), "");
+        int id = Storage.getStorage().addGroup(group);
+
+        Bundle bundle = new Bundle();
+        bundle.putInt("group_id", (int)id);
+        Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.showGroupDetails, bundle);
+
+    }
+
+    public void joinGroupNFC(View view) {
+        // TODO: Activate the NFC scanner here!
+        // TODO: We share the Code with HCE
+    }
+
+    public void joinGroupQR(View view) {
+
+        IntentIntegrator integrator = new IntentIntegrator(this);
+        integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
+        integrator.setPrompt("Scan the Tracey QR Code");
+        integrator.setBeepEnabled(false);
+        integrator.setOrientationLocked(false);
+
+        integrator.initiateScan();
+    }
+
+    // Get the results:
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        if(result != null) {
+            if(result.getContents() == null) {
+                Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+
+
+
+                scannedHexData = result.getContents();
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 }

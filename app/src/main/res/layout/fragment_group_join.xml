@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.group_details.GroupDetailsFragment">
+    tools:context=".ui.group_join.GroupJoinFragment">
 
 
 
@@ -32,21 +32,9 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:text="Share Group using NFC"
+            android:text="Join!"
             android:layout_gravity="center"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
-            />
-
-        <Space
-            android:layout_width="1dp"
-            android:layout_height="30dp"/>
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:text="Share Group using QR code"
-            android:layout_gravity="center"
-            android:id="@+id/btnShareQR"
+            android:id="@+id/btnJoinGroup"
             style="@style/Widget.AppCompat.Button.Borderless.Colored"
             />
     </LinearLayout>

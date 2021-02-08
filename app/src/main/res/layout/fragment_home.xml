@@ -22,6 +22,7 @@
             android:layout_height="100dp"
             android:text="Create Group"
             android:layout_gravity="center"
+            android:onClick="createGroup"
             style="@style/Widget.AppCompat.Button.Borderless.Colored"
             />
 
@@ -35,6 +36,7 @@
             android:layout_height="100dp"
             android:text="Join Group using NFC"
             android:layout_gravity="center"
+            android:onClick="joinGroupNFC"
             style="@style/Widget.AppCompat.Button.Borderless.Colored"
             />
 
@@ -47,6 +49,7 @@
             android:layout_height="100dp"
             android:text="Join Group using QR code"
             android:layout_gravity="center"
+            android:onClick="joinGroupQR"
             style="@style/Widget.AppCompat.Button.Borderless.Colored"
             />
     </LinearLayout>

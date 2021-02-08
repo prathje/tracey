@@ -2,10 +2,11 @@ package de.patrickrathje.tracey;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 
 import de.patrickrathje.tracey.model.Group;
 
-public class Storage {
+public class Storage extends Observable {
 
     private static Storage instance;
 
@@ -18,16 +19,20 @@ public class Storage {
 
     List<Group> groups = new ArrayList<>();
     public List<Group> getGroups() {
-        return groups;
+        return new ArrayList<>(groups);
     }
 
-    public void addGroup(Group group) {
-        group.setSaved(true);
+    public int addGroup(Group group) {
+        int id = groups.size();
+        group.setId(id);
+
         groups.add(group);
-    }
 
-    public void removeGroup(Group group) {
-        group.setSaved(false);
-        groups.remove(group);
+        setChanged();
+
+        // trigger notification
+        notifyObservers(groups);
+
+        return id;
     }
 }

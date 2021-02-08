@@ -1,5 +1,6 @@
 package de.patrickrathje.tracey.model;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Group {
@@ -8,10 +9,8 @@ public class Group {
     Date dateCreated;
     Date dateAdded;
     Secret secret;
-    boolean saved = false;
-
-
-
+    Integer id = 0;
+    
     public Group(Date dateCreated, String text, Secret secret) {
         this.dateCreated = dateCreated;
         this.dateAdded = new Date();
@@ -42,11 +41,18 @@ public class Group {
         return dateAdded;
     }
 
-    public boolean isSaved() {
-        return saved;
+
+    public Integer getId() {
+        return id;
     }
 
-    public void setSaved(boolean saved) {
-        this.saved = saved;
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        return sdf.format(getDateAdded());
     }
 }
