@@ -5,17 +5,19 @@
     android:id="@+id/mobile_navigation"
     app:startDestination="@+id/navigation_home">
 
+    <action android:id="@+id/showGroupDetails"
+        app:destination="@+id/group_details">
+        <argument
+            android:name="group_id"
+            app:argType="integer"
+            android:defaultValue="0" />
+    </action>
+
     <fragment
         android:id="@+id/navigation_home"
         android:name="de.patrickrathje.tracey.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
-
-    <fragment
-        android:id="@+id/navigation_contacts"
-        android:name="de.patrickrathje.tracey.ui.contacts.ContactsFragment"
-        android:label="@string/title_contacts"
-        tools:layout="@layout/fragment_contacts" />
 
     <fragment
         android:id="@+id/navigation_groups"
@@ -28,5 +30,16 @@
         android:name="de.patrickrathje.tracey.ui.settings.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
+
+
+    <fragment
+        android:id="@+id/group_details"
+        android:name="de.patrickrathje.tracey.ui.group_details.GroupDetailsFragment"
+        tools:layout="@layout/fragment_group_details">
+        <argument
+            android:name="group_id"
+            app:argType="integer"
+            android:defaultValue="0" />
+    </fragment>
 
 </navigation>

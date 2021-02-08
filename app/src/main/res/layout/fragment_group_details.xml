@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.home.HomeFragment">
+    tools:context=".ui.group_details.GroupDetailsFragment">
+
 
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -17,13 +18,11 @@
             android:layout_width="1dp"
             android:layout_height="30dp"/>
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:text="Create Group"
-            android:layout_gravity="center"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
-            />
+        <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
 
 
         <Space
@@ -33,7 +32,7 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:text="Join Group using NFC"
+            android:text="Share Group using NFC"
             android:layout_gravity="center"
             style="@style/Widget.AppCompat.Button.Borderless.Colored"
             />
@@ -45,10 +44,13 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:text="Join Group using QR code"
+            android:text="Share Group using QR code"
             android:layout_gravity="center"
             style="@style/Widget.AppCompat.Button.Borderless.Colored"
             />
     </LinearLayout>
+
+
+
 
 </android.support.constraint.ConstraintLayout>

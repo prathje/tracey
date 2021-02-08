@@ -7,6 +7,9 @@ import android.nfc.tech.IsoDep;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -17,7 +20,12 @@ import androidx.navigation.ui.NavigationUI;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Random;
+
+import de.patrickrathje.tracey.model.Group;
+import de.patrickrathje.tracey.ui.group_details.GroupDetailsFragment;
+import de.patrickrathje.tracey.utils.HexConverter;
 
 public class MainActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback {
 
@@ -50,25 +58,61 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         BottomNavigationView navView = findViewById(R.id.nav_view);
+
+
+        // we load some dummy data!
+        for(int i = 0; i < 20; i++) {
+            Storage.getStorage().addGroup(new Group(new Date(), i % 2 == 0 ? "test" + String.valueOf(i) : ""));
+        }
+
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_settings, R.id.navigation_contacts)
-                .build();
+        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(R.id.navigation_home,R.id.navigation_groups, R.id.navigation_settings).build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
-
+        
+        
+        
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         if (nfcAdapter != null) {
             nfcAdapter.setNdefPushMessage(null, this); // Disable BEAM for this activity
         }
 
+        // TODO: We should make this configurable
         startService(new Intent(this, ApduService.class));
 
-
         final Random random = new Random();
+    }
+
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        return Navigation.findNavController(this, R.id.nav_host_fragment).navigateUp() || super.onSupportNavigateUp();
+    }
+
+    private void parseIntent(Intent intent) {
+        final String action = intent.getAction();
+
+
+        if (action != null) {
+            System.out.println("action:" + action);
+            if (action.equals("show_group")) {
+
+                Bundle bundle = new Bundle();
+                bundle.putInt("group_id", 0);
+                Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.showGroupDetails, bundle);
+            }
+        }
+    }
+
+
+
+    @Override
+    protected void onNewIntent(final Intent intent) {
+        super.onNewIntent(intent);
+        parseIntent(intent);
     }
 
     @Override
@@ -87,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 byte[] command = ApduService.SELECT_APDU;
 
                 // Send command to remote device
-                Log.i("Tracey", "Sending: " + ApduService.ByteArrayToHexString(command));
+                Log.i("Tracey", "Sending: " + HexConverter.ByteArrayToHexString(command));
                 byte[] result = isoDep.transceive(command);
                 // If AID is successfully selected, 0x9000 is returned as the status word (last 2
                 // bytes of the result) by convention. Everything before the status word is
@@ -110,11 +154,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                         accountNumber = new String(payload, "UTF-8");
                         Log.i("Tracey", "Received2: " + accountNumber);
                     } else {
-                        Log.i("Tracey", "Received data 2 was not okay: " + ApduService.ByteArrayToHexString(result));
+                        Log.i("Tracey", "Received data 2 was not okay: " + HexConverter.ByteArrayToHexString(result));
                     }
 
                 } else {
-                    Log.i("Tracey", "Received data was not okay: " + ApduService.ByteArrayToHexString(result));
+                    Log.i("Tracey", "Received data was not okay: " + HexConverter.ByteArrayToHexString(result));
                 }
             } catch (IOException e) {
                 Log.e("Tracey", "Error communicating with card: " + e.toString());

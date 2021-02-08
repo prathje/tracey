@@ -4,4 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.contacts.GroupsFragment"/>
+    tools:context=".ui.groups.GroupsFragment">
+
+
+    <android.support.v7.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ListView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+        </ListView>
+
+    </android.support.v7.widget.LinearLayoutCompat>
+
+
+
+
+</android.support.constraint.ConstraintLayout>

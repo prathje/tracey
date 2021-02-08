@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="de.patrickrathje.tracey">
+    package="de.patrickrathje.tracey" xmlns:tools="http://schemas.android.com/tools">
 
 
     <uses-permission android:name="android.permission.NFC" />
 
     <uses-feature android:name="android.hardware.nfc.hce" android:required="true" />
     <uses-feature android:name="android.hardware.nfc" android:required="true" />
+
+    <uses-sdk tools:overrideLibrary="com.google.zxing.client.android" />
 
     <application
         android:allowBackup="true"
@@ -36,6 +38,11 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
+
+
+                <action android:name="show_group"/>
+                <action android:name="join_group"/>
+
                 <data android:scheme="tracey" android:host="de.patrickrathje.tracey" android:path="/"/>
 
             </intent-filter>

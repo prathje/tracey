@@ -7,11 +7,6 @@
         android:title="@string/title_home" />
 
     <item
-        android:id="@+id/navigation_contacts"
-        android:icon="@drawable/ic_baseline_beenhere_24"
-        android:title="@string/title_contacts" />
-
-    <item
         android:id="@+id/navigation_groups"
         android:icon="@drawable/ic_baseline_groups_24"
         android:title="@string/title_groups" />
