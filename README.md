@@ -10,7 +10,16 @@ While a public database distributes those notifications, only the original parti
 In addition to personal contacts, groups can also share a secret.
 The secrets can either be generated on demand or in advance.
 
+
+## About This Prototype
+This project contains an example Android application. The prototype supports sharing secrets using both QR codes and NFC.
+The app switches NFC's active and passive mode to allow bidirectional connections with other smartphones, smart cards and also smartwatches.
+Currently, the prototype receives notifications also using QR codes.
+
+
 ## Todos
-* Add source code for Android App
+* Support NFC Sharing
+* Add QR code notification and allow scanning and parsing using the QR code scanner
 * Provide screenshots for Android App
 * Add source code for notification database
+* Move notification handling to separate project and program
