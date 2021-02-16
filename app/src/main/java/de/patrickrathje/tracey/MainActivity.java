@@ -1,6 +1,11 @@
 package de.patrickrathje.tracey;
 
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
 import android.icu.lang.UCharacter;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
@@ -9,6 +14,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,8 +27,10 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.zxing.BarcodeFormat;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -29,9 +40,9 @@ import java.util.Random;
 import de.patrickrathje.tracey.model.Group;
 import de.patrickrathje.tracey.ui.group_join.GroupJoinFragment;
 import de.patrickrathje.tracey.utils.HexConverter;
+import de.patrickrathje.tracey.utils.InvitationParser;
 
 public class MainActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback {
-
 
     public static final String LOG_TAG = "Tracey";
 
@@ -59,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
 
     private String scannedHexData = null;
+    private String shareData = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,8 +91,7 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
         
-        
-        
+
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         if (nfcAdapter != null) {
@@ -89,8 +100,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
         // TODO: We should make this configurable
         startService(new Intent(this, ApduService.class));
-
-        final Random random = new Random();
     }
 
 
@@ -152,9 +161,8 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
             }
         }
 
-        // in case of failure, it might be that the other party just enabled reader mode
-        // in case of success, we disable reader mode for now TODO: Is that correct?
-        this.updateReaderMode(STATE_PRESENTING_HCE_IN_FOREGROUND);
+        // present HCE in the background
+        this.updateReaderMode(STATE_PRESENTING_HCE_IN_BACKGROUND);
     }
 
     @Override
@@ -167,15 +175,13 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         super.onResume();
 
         if (scannedHexData != null) {
-            // we scaned something!
+            // we scanned something! 
             Bundle bundle = new Bundle();
             System.out.println(scannedHexData);
             bundle.putString(GroupJoinFragment.ARG_HEX_DATA, scannedHexData);
             scannedHexData = null;
             Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.joinGroup, bundle);
         }
-
-        this.updateReaderMode(STATE_SEARCHING_FOR_HCE);
     }
 
     @Override
@@ -256,12 +262,58 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         Bundle bundle = new Bundle();
         bundle.putInt("group_id", (int)id);
         Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.showGroupDetails, bundle);
+    }
 
+    public void shareGroupNFC(Group group) {
+
+        shareData = InvitationParser.toHexInvitationString(group);
+        startService((new Intent(this, ApduService.class)).setAction("setShareData").putExtra("shareData", shareData));
+
+        // We start to search for HCE
+        this.updateReaderMode(STATE_SEARCHING_FOR_HCE);
+
+        final MainActivity self = this;
+        // and we open a dialog
+
+        ProgressDialog nDialog;
+        nDialog = new ProgressDialog(this);
+        nDialog.setMessage("Sending Group to other Tracey devices");
+        nDialog.setIndeterminate(true);
+        nDialog.setCancelable(true);
+        nDialog.show();
+        nDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+
+                shareData = null;
+                startService((new Intent(self, ApduService.class)).setAction("resetShareData"));
+                self.updateReaderMode(STATE_PRESENTING_HCE_IN_BACKGROUND);
+            }
+        });
     }
 
     public void joinGroupNFC(View view) {
-        // TODO: Activate the NFC scanner here!
-        // TODO: We share the Code with HCE
+        // We start to search for HCE
+        this.updateReaderMode(STATE_SEARCHING_FOR_HCE);
+
+        shareData = null;
+        startService((new Intent(this, ApduService.class)).setAction("resetShareData"));
+
+        final MainActivity self = this;
+        // and we open a dialog
+
+        ProgressDialog nDialog;
+        nDialog = new ProgressDialog(this);
+        nDialog.setMessage("Searching for Tracey device");
+        nDialog.setIndeterminate(true);
+        nDialog.setCancelable(true);
+        nDialog.show();
+        nDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                self.updateReaderMode(STATE_PRESENTING_HCE_IN_BACKGROUND);
+            }
+        });
     }
 
     public void joinGroupQR(View view) {
@@ -284,8 +336,6 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
-
-
 
                 scannedHexData = result.getContents();
             }

@@ -22,6 +22,7 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.text.SimpleDateFormat;
 
+import de.patrickrathje.tracey.MainActivity;
 import de.patrickrathje.tracey.R;
 import de.patrickrathje.tracey.Storage;
 import de.patrickrathje.tracey.model.Group;
@@ -76,6 +77,13 @@ public class GroupDetailsFragment extends Fragment {
 
             GroupDetailsFragment self = this;
 
+            final MainActivity mainActivity = (MainActivity) getActivity();
+
+            rootView.findViewById(R.id.btnShareNFC).setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    mainActivity.shareGroupNFC(group);
+                }
+            });
 
             rootView.findViewById(R.id.btnShareQR).setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -83,10 +91,14 @@ public class GroupDetailsFragment extends Fragment {
                     self.showQRCode(group);
                 }
             });
+
+
         }
 
         return rootView;
     }
+
+
 
 
 
@@ -106,8 +118,6 @@ public class GroupDetailsFragment extends Fragment {
             builder.addContentView(imageView, new RelativeLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT));
-
-
 
             builder.show();
 
