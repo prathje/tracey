@@ -32,6 +32,5 @@ Currently, the prototype receives notifications also using QR codes.
 
 ## Todos
 * Add QR code notification and allow scanning and parsing using the QR code scanner
-* Provide screenshots for Android App
 * Add source code for notification database
 * Move notification handling to separate project and program
