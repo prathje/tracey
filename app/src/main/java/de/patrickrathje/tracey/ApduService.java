@@ -72,18 +72,18 @@ public class ApduService extends HostApduService {
     }
 
 
-    private void onInvitationSent() {
+   /* private void onInvitationSent() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setAction("on")
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         //intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra("result", HexConverter.ByteArrayToHexString(result));
         this.startActivity(intent);
-    }
+    }*/
 
     private void onResult(byte[] result) {
         Intent intent = new Intent(this, MainActivity.class);
-        intent.setAction("on")
+        intent.setAction("onResult");
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         //intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra("result", HexConverter.ByteArrayToHexString(result));
