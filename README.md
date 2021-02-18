@@ -17,8 +17,20 @@ The app switches NFC's active and passive mode to allow bidirectional connection
 Currently, the prototype receives notifications also using QR codes.
 
 
+## Screenshots
+
+<div>
+<img width="100" alt="Home Screen" src="img/home.jpeg" >
+<img width="100" alt="Group Details" src="img/group_details.jpeg" >
+<img width="100" alt="Share with NFC" src="img/share_nfc.jpeg" >
+<img width="100" alt="Share with QR code" src="img/share_qr.jpeg" >
+<img width="100" alt="QR Scanning" src="img/scanning.jpeg" >
+<img width="100" alt="Group Join" src="img/group_join.jpeg" >
+<img width="100" alt="Group List" src="img/group_list.jpeg" >
+</div>
+
+
 ## Todos
-* Support NFC Sharing
 * Add QR code notification and allow scanning and parsing using the QR code scanner
 * Provide screenshots for Android App
 * Add source code for notification database
