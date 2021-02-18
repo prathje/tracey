@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import de.patrickrathje.tracey.utils.HexConverter;
+import de.patrickrathje.tracey.utils.InvitationParser;
 
 public class ApduService extends HostApduService {
 
@@ -20,8 +21,6 @@ public class ApduService extends HostApduService {
     public static final byte[] SELECT_OK_SW = HexConverter.HexStringToByteArray("9000");
     public static final byte[] UNKNOWN_CMD_SW = HexConverter.HexStringToByteArray("0000");
     public static final byte[] SELECT_APDU = BuildSelectApdu(AID);
-
-    public static final byte[] EPH_KEY = new byte[64];
 
     public String shareData = null;     // The data that is being shared, e.g. a tracey group
 
@@ -37,12 +36,10 @@ public class ApduService extends HostApduService {
         // If the APDU matches the SELECT AID command for this service,
         if (Arrays.equals(SELECT_APDU, commandApdu)) {
             Log.i(LOG_TAG, "Sharing Data: " + d);
-            return ConcatArrays(d.getBytes(StandardCharsets.US_ASCII), SELECT_OK_SW);
-        } else if (commandApdu[0] == 0 && commandApdu[1] == 0 && Arrays.equals(commandApdu, HexConverter.HexStringToByteArray("FFFFFF"))) {
-            Log.i(LOG_TAG, "Sharing Data: " + d);
-            return ConcatArrays(d.getBytes(StandardCharsets.US_ASCII), SELECT_OK_SW);
+            return ConcatArrays(HexConverter.HexStringToByteArray(d), SELECT_OK_SW);
         } else {
-            return UNKNOWN_CMD_SW;
+            onResult(commandApdu);
+            return SELECT_OK_SW;
         }
 
         // TODO: Use async sendResponseApdu(byte[]) ? Update the MainActivities State?!
@@ -63,29 +60,18 @@ public class ApduService extends HostApduService {
             } else if(intent.getAction().equals("resetShareData")) {
                 Log.i(LOG_TAG, "resetShareData");
                 shareData = null;
-            } else if(intent.getAction().equals("test")) {
-                onResult(HexConverter.HexStringToByteArray("F000000100000177AC91D6136FA0B35953546FBAD88E7C919246AEC5882EA4373DF3432E317E838BBDEFFF84B8898CB776776D6DFB6453C85A4CCC42DA8594773D598644DA36C0B09DA9C233"));
             }
         }
 
         return super.onStartCommand(intent, flags, startId);
     }
 
-
-   /* private void onInvitationSent() {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setAction("on")
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        //intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intent.putExtra("result", HexConverter.ByteArrayToHexString(result));
-        this.startActivity(intent);
-    }*/
-
     private void onResult(byte[] result) {
+        Log.i(LOG_TAG, "onResult");
         Intent intent = new Intent(this, MainActivity.class);
         intent.setAction("onResult");
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        //intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra("result", HexConverter.ByteArrayToHexString(result));
         this.startActivity(intent);
     }

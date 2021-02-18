@@ -33,6 +33,7 @@ import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
@@ -66,6 +67,9 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
     final Random random = new Random();
     final Handler handler = new Handler();
+
+
+    ProgressDialog nDialog;
 
 
 
@@ -104,9 +108,23 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        if (intent.getAction() != null) {
+            if(intent.getAction().equals("onResult")) {
+                String result = intent.getStringExtra("result");
+                handleGroupInvitation(result);
+            }
+        }
+    }
+
+
+
+
+    @Override
     public boolean onSupportNavigateUp() {
         return Navigation.findNavController(this, R.id.nav_host_fragment).navigateUp() || super.onSupportNavigateUp();
     }
+
 
 
 
@@ -136,23 +154,35 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
                 byte[] statusWord = {result[resultLength-2], result[resultLength-1]};
                 byte[] payload = Arrays.copyOf(result, resultLength-2);
                 if (Arrays.equals(ApduService.SELECT_OK_SW, statusWord)) {
-                    // The remote NFC device will immediately respond with its stored account number
-                    String accountNumber = new String(payload, "UTF-8");
-                    Log.i("Tracey", "Received: " + accountNumber);
+                    String otherKey = HexConverter.ByteArrayToHexString(payload);
 
-                    Log.i("Tracey", "Sending own key...");
-                    result = isoDep.transceive(ApduService.EPH_KEY);
 
-                    resultLength = result.length;
-                    byte[] statusWord2 = {result[resultLength-2], result[resultLength-1]};
-                    payload = Arrays.copyOf(result, resultLength-2);
-                    if (Arrays.equals(ApduService.SELECT_OK_SW, statusWord2)) {
-                        accountNumber = new String(payload, "UTF-8");
-                        Log.i("Tracey", "Received2: " + accountNumber);
+                    if (otherKey.length() >  0 && shareData == null) {
+                        Log.i("Tracey", "Received key: " + otherKey);
+                        // we received a key -> handle it!
+                        handleGroupInvitation(otherKey);
+                    } else if (shareData != null){
+                        Log.i("Tracey", "Sending own key: "+ shareData);
+                        result = isoDep.transceive(HexConverter.HexStringToByteArray(shareData));
+
+                        resultLength = result.length;
+                        byte[] statusWord2 = {result[resultLength-2], result[resultLength-1]};
+                        //payload = Arrays.copyOf(result, resultLength-2);
+                        if (Arrays.equals(ApduService.SELECT_OK_SW, statusWord2)) {
+                            Log.i("Tracey", "Key shared!");
+                            if (nDialog != null) {
+                                nDialog.dismiss();
+                                nDialog = null;
+                            }
+                        } else {
+                            Log.i("Tracey", "Received data 2 was not okay: " + HexConverter.ByteArrayToHexString(result));
+                        }
                     } else {
-                        Log.i("Tracey", "Received data 2 was not okay: " + HexConverter.ByteArrayToHexString(result));
+                        Log.i("Tracey", "No key received and none available for sharing either.");
                     }
 
+                    // and we can disconnect
+                    isoDep.close();
                 } else {
                     Log.i("Tracey", "Received data was not okay: " + HexConverter.ByteArrayToHexString(result));
                 }
@@ -175,13 +205,32 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         super.onResume();
 
         if (scannedHexData != null) {
-            // we scanned something! 
-            Bundle bundle = new Bundle();
-            System.out.println(scannedHexData);
-            bundle.putString(GroupJoinFragment.ARG_HEX_DATA, scannedHexData);
+            handleGroupInvitation(scannedHexData);
             scannedHexData = null;
-            Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.joinGroup, bundle);
         }
+    }
+
+    protected void handleGroupInvitation(String hexData) {
+
+
+        final MainActivity self = this;
+
+        // we scanned something!
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                if (nDialog != null) {
+                    nDialog.dismiss();
+                    nDialog = null;
+                }
+
+                Bundle bundle = new Bundle();
+                bundle.putString(GroupJoinFragment.ARG_HEX_DATA, hexData);
+                Navigation.findNavController(self, R.id.nav_host_fragment).navigate(R.id.joinGroup, bundle);
+            }
+        });
+
     }
 
     @Override
@@ -194,6 +243,15 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
 
     @Override
     protected void onStop() {
+
+        if (nDialog != null) {
+            nDialog.dismiss();
+            nDialog = null;
+        }
+        shareData = null;
+        startService((new Intent(this, ApduService.class)).setAction("resetShareData"));
+        updateReaderMode(STATE_PRESENTING_HCE_IN_BACKGROUND);
+
         super.onStop();
     }
 
@@ -275,7 +333,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         final MainActivity self = this;
         // and we open a dialog
 
-        ProgressDialog nDialog;
+        if (nDialog  != null) {
+            nDialog.dismiss();
+            nDialog = null;
+        }
+
         nDialog = new ProgressDialog(this);
         nDialog.setMessage("Sending Group to other Tracey devices");
         nDialog.setIndeterminate(true);
@@ -302,7 +364,11 @@ public class MainActivity extends AppCompatActivity implements NfcAdapter.Reader
         final MainActivity self = this;
         // and we open a dialog
 
-        ProgressDialog nDialog;
+        if (nDialog != null) {
+            nDialog.dismiss();
+            nDialog = null;
+        }
+
         nDialog = new ProgressDialog(this);
         nDialog.setMessage("Searching for Tracey device");
         nDialog.setIndeterminate(true);
